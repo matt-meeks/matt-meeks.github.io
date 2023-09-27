@@ -1,19 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Matthew Meeks</title>
-  </head>
+  <script type="module" crossorigin src="/assets/index-e0d3915d.js"></script>
+  <link rel="stylesheet" href="/assets/index-4dcc1ea7.css">
+</head>
 
-  <body>
-    <h1>Matthew Meeks</h1>
-    <h2>Projects</h2>
-    <ul>
-      <li>coalesce.dev</li>
-      <ul>
-        <li><a href="https://coalesce-dev.github.io/">Site</a></li>
-      </ul>
-      <li><a href="/geoimg">GeoImg</a></li>
-    </ul>
-  </body>
+<body>
+    <div id="app"></div>
+    <div id="overlay" style="visibility: hidden;">
+        <div id="ff-indicator" style="visibility: hidden;">FF &gt;&gt;</div>
+        <div id="tracking-indicator" style="visibility: hidden;">TRACKING</div>
+    </div>
+    <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+        <filter id="displacementFilter">
+            <feOffset id="offset1" in="SourceGraphic" dx="0" dy="0" result="offset1" />
+            <feOffset id="offset2" in="SourceGraphic" dx="0" dy="0" result="offset2" />
+            <feMerge result="offset">
+                <feMergeNode in="offset1" />
+                <feMergeNode in="offset2" />
+            </feMerge>
+            <feTurbulence id="turbo" type="turbulence" baseFrequency="0.01 0.5" numOctaves="1" result="turbulence" />
+            <feDisplacementMap id="displace" in2="turbulence" in="offset" scale="0" xChannelSelector="R"
+                yChannelSelector="G" result="almost" />
+            <feImage id="lingrad" xlink:href="/lingrad.png" result="lingrad_raw" height="100"
+                preserveAspectRatio="none" />
+            <feTile in="lingrad_raw" result="lingrad" />
+            <feDisplacementMap id="displace2" in2="lingrad" in="almost" scale="0" xChannelSelector="R"
+                yChannelSelector="G" />
+        </filter>
+        <animate xlink:href="#turbo" id="anim-dialiate" attributeName="seed" from="0" to="1000" dur="10s" fill="freeze"
+            repeatCount="indefinite" />
+        <animate xlink:href="#lingrad" id="anim-dialiate2" attributeName="height" from="1000" to="10" dur="3s"
+            fill="freeze" repeatCount="indefinite" />
+    </svg>
+    
+</body>
+
 </html>
-
