@@ -4,19 +4,30 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        html {
+            height: 100%;
+            background: #222;
+        }
+
         body {
+            display: grid;
+            grid-template-rows: 1fr;
+            align-items: center;
+
             width: 8.5in;
-            height: 11in;
-            max-height: 11in;
             margin: auto;
-            padding: 0.25in;
             box-sizing: border-box;
             font-size: 11pt;
             overflow: auto;
-            background: white;
+            vertical-align: middle;
+            height: 100%;
         }
 
         body>div {
+            padding: 0.25in;
+            background: white;
+            height: 11in;
+            max-height: 11in;
             display: grid;
             grid-template-areas:
                 "header header"
@@ -24,6 +35,8 @@
                 "sidebar content";
             grid-template-columns: 300px auto;
             grid-template-rows: auto auto 1fr;
+
+            box-shadow: 0.125in 0.125in 0.5in black;
         }
 
         ul {
@@ -89,10 +102,6 @@
 
         main>h2 {
             margin-top: 0;
-        }
-
-        html {
-            background: black;
         }
 
         .item-grid {
