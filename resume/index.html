@@ -2,15 +2,9 @@
 <html>
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            display: grid;
-            grid-template-areas:
-                "header header"
-                "blurb blurb"
-                "sidebar content";
-            grid-template-columns: 300px auto;
-            grid-template-rows: auto auto 1fr;
             width: 8.5in;
             height: 11in;
             max-height: 11in;
@@ -18,8 +12,18 @@
             padding: 0.25in;
             box-sizing: border-box;
             font-size: 11pt;
-            overflow: hidden;
+            overflow: auto;
             background: white;
+        }
+
+        body>div {
+            display: grid;
+            grid-template-areas:
+                "header header"
+                "blurb blurb"
+                "sidebar content";
+            grid-template-columns: 300px auto;
+            grid-template-rows: auto auto 1fr;
         }
 
         ul {
@@ -127,190 +131,197 @@
 </head>
 
 <body>
-    <header style="grid-area: header;">
-        <h1>Matthew Meeks</h1>
-        +1 252 228 9585 - me@matthewmeeks.com
-    </header>
-    <article style="grid-area: blurb;" class="todo">
-        <!-- <h2>Summary</h2> -->
-        I'm an experienced software engineer focused in FinTech helping companies achieve feature-driven impact for
-        externally facing clients. By leveraging client interactions, component-appropriate design principles,
-        requirement workshops,
-        and test-driven development, I establish long-lasting solutions in all areas of the technology stack. I am
-        looking forward to joining a team where I can utilize my coding skills as well as my architecture experience to
-        drive value and learn anything new.
-        I believe production-ready code is written thoughtfully, purposefully, and with clear intent.
-    </article>
-    <aside style="grid-area: sidebar;">
-        <div>
-            <h2>Skills / Technologies</h2>
+    <div>
+        <header style="grid-area: header;">
+            <h1>Matthew Meeks</h1>
+            +1 252 228 9585 - me@matthewmeeks.com
+        </header>
+        <article style="grid-area: blurb;" class="todo">
+            <!-- <h2>Summary</h2> -->
+            I'm an experienced software engineer focused in FinTech helping companies achieve feature-driven impact for
+            externally facing clients. By leveraging client interactions, component-appropriate design principles,
+            requirement workshops,
+            and test-driven development, I establish long-lasting solutions in all areas of the technology stack. I am
+            looking forward to joining a team where I can utilize my coding skills as well as my architecture experience
+            to
+            drive value and learn anything new.
+            I believe production-ready code is written thoughtfully, purposefully, and with clear intent.
+        </article>
+        <aside style="grid-area: sidebar;">
+            <div>
+                <h2>Skills / Technologies</h2>
+                <ul class="todo">
+                    <li>Java</li>
+                    <li>Rust</li>
+                    <li>C#</li>
+                    <li>JavaScript/TypeScript</li>
+                    <li>React</li>
+                    <li>Redis</li>
+                    <li>gRPC w/ Protobuf</li>
+                    <li>Tokio Stack (<a href="http://tokio.rs">tokio.rs</a>)</li>
+                    <li>Entity Component Systems</li>
+                    <li>CSS/SASS</li>
+                    <li>Web Design & Accessibility</li>
+                    <li>Language Server Protocol</li>
+                    <li>Debug Adapter Protocol</li>
+                    <li>CI/CD (Jenkins / TeamCity / GH Actions)</li>
+                    <li>Micro-Services Architecture</li>
+                </ul>
+            </div>
+
+            <div>
+                <h2>Education</h2>
+                <ul>
+                    <li>North Carolina State University<br>August 2015 - December 2018<br>BS in Computer
+                        Science<br>Magna
+                        Cum Laude</li>
+                </ul>
+            </div>
+
+            <div>
+                <h2>Achievements</h2>
+                <ul class="todo">
+                    <li>Technical Recognition - DB Americas, 2021</li>
+                    <li>Tech Innovator of the Month - DB Cary, May 2022</li>
+                    <li>NC Tech Award - Digital Transformation Nominee - DynoForms, 2022</li>
+                </ul>
+            </div>
+        </aside>
+
+        <main style="grid-area: content;">
+            <h2>Experience</h2>
+            <div class="heading">
+                <div>Deutsche Bank</div>
+                <div>March 2020 - Current</div>
+            </div>
             <ul class="todo">
-                <li>Java</li>
-                <li>Rust</li>
-                <li>C#</li>
-                <li>JavaScript/TypeScript</li>
-                <li>React</li>
-                <li>Redis</li>
-                <li>gRPC w/ Protobuf</li>
-                <li>Tokio Stack (<a href="http://tokio.rs">tokio.rs</a>)</li>
-                <li>Entity Component Systems</li>
-                <li>CSS/SASS</li>
-                <li>Web Design & Accessibility</li>
-                <li>Language Server Protocol</li>
-                <li>Debug Adapter Protocol</li>
-                <li>CI/CD (Jenkins / TeamCity / GH Actions)</li>
-                <li>Micro-Services Architecture</li>
-            </ul>
-        </div>
+                <li>Lead fullstack engineer</li>
+                <ul>
+                    <li>Delivered complete end-to-end business functionality</li>
+                    <li>Key contributor to team's design group</li>
+                </ul>
 
-        <div>
-            <h2>Education</h2>
-            <ul>
-                <li>North Carolina State University<br>August 2015 - December 2018<br>BS in Computer Science<br>Magna
-                    Cum Laude</li>
-            </ul>
-        </div>
-
-        <div>
-            <h2>Achievements</h2>
-            <ul class="todo">
-                <li>Technical Recognition - DB Americas, 2021</li>
-                <li>Tech Innovator of the Month - DB Cary, May 2022</li>
-                <li>NC Tech Award - Digital Transformation Nominee - DynoForms, 2022</li>
-            </ul>
-        </div>
-    </aside>
-
-    <main style="grid-area: content;">
-        <h2>Experience</h2>
-        <div class="heading">
-            <div>Deutsche Bank</div>
-            <div>March 2020 - Current</div>
-        </div>
-        <ul class="todo">
-            <li>Lead fullstack engineer</li>
-            <ul>
-                <li>Delivered complete end-to-end business functionality</li>
-                <li>Key contributor to team's design group</li>
-            </ul>
-
-            <!-- <li class="todo">RESTful API design</li> -->
-            <li>
-                <div class="item-grid">
-                    <div>Designed and developed cloud native micro-services for corperate payment initiation</div>
-                    <div>GKE, Temporal, MongoDB,<br>gRPC, WebSockets, OIDC</div>
-                </div>
-            </li>
-            <li>
-                <div class="item-grid">
-                    <div>Designed micro-frontend architecture</div>
-                    <div>NX, Vite, TypeScript, React</div>
-                </div>
-            </li>
-            <li>
-                <div class="item-grid">
-                    <div>Developed on-prem micro-services for coperate payment initiation</div>
-                    <div>Kafka, HBase, Java, OpenShift</div>
-                </div>
-            </li>
-            <li>
-                <div class="item-grid">
-                    <div>Proposed and prototyped distributed tracing for services</div>
-                    <div>OpenTelemetry</div>
-                </div>
-            </li>
-
-            <li>Architected Dynamic Payment Forms (DynoForms)</li>
-            <ul>
+                <!-- <li class="todo">RESTful API design</li> -->
                 <li>
                     <div class="item-grid">
-                        <div>Lead the project management of DynoForms rollout for global payments</div>
-                        <div>TypeScript, React, Language Server Protocol<br>VS Code Extension, Debug Adapter Protocol
+                        <div>Designed and developed cloud native micro-services for corperate payment initiation</div>
+                        <div>GKE, Temporal, MongoDB,<br>gRPC, WebSockets, OIDC</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="item-grid">
+                        <div>Designed micro-frontend architecture</div>
+                        <div>NX, Vite, TypeScript, React</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="item-grid">
+                        <div>Developed on-prem micro-services for coperate payment initiation</div>
+                        <div>Kafka, HBase, Java, OpenShift</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="item-grid">
+                        <div>Proposed and prototyped distributed tracing for services</div>
+                        <div>OpenTelemetry</div>
+                    </div>
+                </li>
+
+                <li>Architected Dynamic Payment Forms (DynoForms)</li>
+                <ul>
+                    <li>
+                        <div class="item-grid">
+                            <div>Lead the project management of DynoForms rollout for global payments</div>
+                            <div>TypeScript, React, Language Server Protocol<br>VS Code Extension, Debug Adapter
+                                Protocol
+                            </div>
                         </div>
+                    </li>
+                </ul>
+
+                <li>
+                    <div class="item-grid">
+                        <div>Contributed to platforms's PSD/2 regulatory requirement</div>
+                        <div>Apache httpd, RSA Cleartrust,<br>TypeScript/JavaScript</div>
                     </div>
                 </li>
+                <li>
+                    <div class="item-grid">
+                        <div>Facilitated design of routing externally created network traffic into Deutsche Bank's
+                            internal
+                            network</div>
+                    </div>
+                </li>
+
+                <li>Mentored grads and interns</li>
+                <ul>
+                    <li>Emphasized common problem solving techniques in FinTech</li>
+                    <li>Trained TypeScript, React, Java, and Fossil</li>
+                </ul>
             </ul>
 
-            <li>
-                <div class="item-grid">
-                    <div>Contributed to platforms's PSD/2 regulatory requirement</div>
-                    <div>Apache httpd, RSA Cleartrust,<br>TypeScript/JavaScript</div>
-                </div>
-            </li>
-            <li>
-                <div class="item-grid">
-                    <div>Facilitated design of routing externally created network traffic into Deutsche Bank's internal
-                        network</div>
-                </div>
-            </li>
-
-            <li>Mentored grads and interns</li>
-            <ul>
-                <li>Emphasized common problem solving techniques in FinTech</li>
-                <li>Trained TypeScript, React, Java, and Fossil</li>
-            </ul>
-        </ul>
-
-        <div class="heading">
-            <div>IHS Markit / IPREO</div>
-            <div>July 2017 - March 2020</div>
-        </div>
-        <ul>
-            <li>
-                <div class="item-grid">
-                    <div>FormulaDSL</div>
-                    <div>C#, TypeScript, Java</div>
-                </div>
-            </li>
+            <div class="heading">
+                <div>IHS Markit / IPREO</div>
+                <div>July 2017 - March 2020</div>
+            </div>
             <ul>
                 <li>
                     <div class="item-grid">
-                        <div>A domain specific language for declaring calculations and dependencies between properties
-                            once and emitting the corresponding models and calculations in Java, TypeScript, and C#
+                        <div>FormulaDSL</div>
+                        <div>C#, TypeScript, Java</div>
+                    </div>
+                </li>
+                <ul>
+                    <li>
+                        <div class="item-grid">
+                            <div>A domain specific language for declaring calculations and dependencies between
+                                properties
+                                once and emitting the corresponding models and calculations in Java, TypeScript, and C#
+                            </div>
                         </div>
-                    </div>
-                </li>
+                    </li>
+                    <li>
+                        <div class="item-grid">
+                            <div>Used by both developers and BAs</div>
+                        </div>
+                    </li>
+                </ul>
                 <li>
                     <div class="item-grid">
-                        <div>Used by both developers and BAs</div>
+                        <div>Performance Automation Testing</div>
+                        <div>C#, Selenium, ETW</div>
+                </li>
+                <ul>
+                    <li>Developed a Performance Automation Framework for capturing performance metrics from web UIs</li>
+                    <li>Developed tools to gather runtime metrics from Silverlight apps running in browser</li>
+                </ul>
+                <li>
+                    <div class="item-grid">
+                        <div>R&E Development</div>
+                        <div>Java, TypeScript, Spring/Spring Boot, Angular, PL/SQL, Nomad</div>
                     </div>
                 </li>
-            </ul>
-            <li>
-                <div class="item-grid">
-                    <div>Performance Automation Testing</div>
-                    <div>C#, Selenium, ETW</div>
-            </li>
-            <ul>
-                <li>Developed a Performance Automation Framework for capturing performance metrics from web UIs</li>
-                <li>Developed tools to gather runtime metrics from Silverlight apps running in browser</li>
-            </ul>
-            <li>
-                <div class="item-grid">
-                    <div>R&E Development</div>
-                    <div>Java, TypeScript, Spring/Spring Boot, Angular, PL/SQL, Nomad</div>
-                </div>
-            </li>
-            <ul>
-                <li>Developed RESTful micro-service and Oracle schema</li>
-                <li>Developed modern UI hosted inside legacy application</li>
-            </ul>
-        </ul>
-
-        <h2>Extra Credit</h2>
-        <div class="two-col">
-            <ul>
-                <li>Rust</li>
-                <li>Computer Graphics</li>
-                <li>Anything with numbers</li>
+                <ul>
+                    <li>Developed RESTful micro-service and Oracle schema</li>
+                    <li>Developed modern UI hosted inside legacy application</li>
+                </ul>
             </ul>
 
-            <ul>
-                <li>Networking</li>
-                <li>Reinventing the wheel to learn new skills</li>
-            </ul>
-        </div>
-    </main>
+            <h2>Extra Credit</h2>
+            <div class="two-col">
+                <ul>
+                    <li>Rust</li>
+                    <li>Computer Graphics</li>
+                    <li>Anything with numbers</li>
+                </ul>
+
+                <ul>
+                    <li>Networking</li>
+                    <li>Reinventing the wheel to learn new skills</li>
+                </ul>
+            </div>
+        </main>
+    </div>
 </body>
 
 </html>
