@@ -97,8 +97,8 @@ function spawnCharacter(id, state) {
   const charElem = elemFrag.querySelector(".character");
   charElem.id = `char-${id}`;
   viewportElem.appendChild(elemFrag);
-  blinkLoop(id);
   states[id] = structuredClone(state);
+  blinkLoop(id);
   changeAppearance(id, state);
   charElem.style.setProperty("--rotation", `${state.rot}deg`);
 }
