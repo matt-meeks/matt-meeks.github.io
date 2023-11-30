@@ -1,34 +1,33 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+    <head>
+        <title>Blob</title>
+        <meta name="viewport" content="width=device-width" />
+        <link rel="stylesheet" href="styles.css" />
+    </head>
 
-<head>
-    <title>Blob</title>
-    <meta name="viewport" content="width=device-width">
-    <link rel="stylesheet" href="styles.css">
-</head>
-
-<body>
-    <div id="container" class="container">
-        <template id="char-tmpl">
-            <div class="character">
-                <div class="shadow"></div>
-                <div class="body"></div>
-                <div class="face">
-                    <div class="left-eye">
-                        <div class="iris">
-                            <div class="pupil"></div>
+    <body>
+        <div id="container" class="container">
+            <template id="char-tmpl">
+                <div class="character">
+                    <div class="shadow"></div>
+                    <div class="body"></div>
+                    <div class="face">
+                        <div class="left-eye">
+                            <div class="iris">
+                                <div class="pupil"></div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="right-eye">
-                        <div class="iris">
-                            <div class="pupil"></div>
+                        <div class="right-eye">
+                            <div class="iris">
+                                <div class="pupil"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </template>
-    </div>
-    <script type="text/javascript" src="script.js"></script>
-</body>
-
+            </template>
+            <button id="btn-appearance">Change Appearance</button>
+        </div>
+        <script type="text/javascript" src="script.js"></script>
+    </body>
 </html>
