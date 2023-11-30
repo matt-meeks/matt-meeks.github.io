@@ -5,9 +5,20 @@
  */
 
 /**
+ * @typedef {Object} CoolGlassesOption
+ * @prop {CoolGlasses} CoolGlasses
+ */
+
+/**
+ * @typedef {Object} CoolGlasses
+ * @prop {number} hue
+ */
+
+/**
  * @typedef {Object} ChangeAppearance
  * @prop {number} body_hue
  * @prop {number} iris_hue
+ * @prop {"None" | CoolGlassesOption} face_apparel
  */
 
 /**
@@ -108,9 +119,25 @@ function spawnCharacter(id, state) {
  * @param {ChangeAppearance} state
  */
 function changeAppearance(id, state) {
+  console.log(state);
   const charElem = getCharElem(id);
+  const apparelElem = charElem.querySelector(".apparel");
+  apparelElem.innerHTML = "";
   charElem.style.setProperty("--hue", state.body_hue);
   charElem.style.setProperty("--iris-hue", state.iris_hue);
+  if (
+    typeof state.face_apparel === "object" &&
+    "CoolGlasses" in state.face_apparel
+  ) {
+    const tmpl = document.getElementById("cool-glasses");
+    const elemFrag = tmpl.content.cloneNode(true);
+    apparelElem.appendChild(elemFrag);
+
+    charElem.style.setProperty(
+      "--glasses-hue",
+      state.face_apparel.CoolGlasses.hue,
+    );
+  }
 }
 
 function despawnCharacter(id) {
@@ -241,6 +268,10 @@ document.getElementById("btn-appearance").onclick = (ev) => {
     ChangeAppearance: {
       body_hue: Math.trunc(Math.random() * 360),
       iris_hue: Math.trunc(Math.random() * 360),
+      face_apparel:
+        Math.random() < 0.15
+          ? { CoolGlasses: { hue: Math.trunc(Math.random() * 360) } }
+          : "None",
     },
   });
   ev.stopPropagation();

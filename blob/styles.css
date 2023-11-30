@@ -70,7 +70,9 @@ body {
     border-top: solid calc(var(--eye-lid-state, 0) * 10px) var(--lid-color);
     border-bottom: solid calc(var(--eye-lid-state, 0) * 10px) var(--lid-color);
     border-radius: 50%;
-    transition: border 0.1s;
+    transition:
+        border 0.1s,
+        border-color 1s;
 }
 
 .left-eye {
@@ -111,4 +113,57 @@ body {
 
 body {
     margin: 0;
+}
+
+.cool-glasses {
+    --color: hsla(var(--glasses-hue, 0), 100%, 50%, 100%);
+    translate: -50% -50%;
+    position: absolute;
+    left: 40px;
+    top: 30px;
+    background: var(--color);
+    width: 9px;
+    height: 6px;
+}
+
+.cool-glasses::before,
+.cool-glasses::after {
+    content: "";
+    position: absolute;
+    top: -7px;
+    width: 26px;
+    height: 20px;
+    background: #0007;
+    border-radius: 50%;
+    border: solid 2px var(--color);
+    box-sizing: border-box;
+}
+
+.cool-glasses::before {
+    right: 7px;
+}
+
+.cool-glasses::after {
+    left: 7px;
+}
+
+.cool-glasses--sides::before,
+.cool-glasses--sides::after {
+    content: "";
+    position: absolute;
+    /* background: black; */
+    height: 6px;
+    width: 13px;
+    border-top: solid 4px var(--color);
+    border-radius: 2px;
+}
+
+.cool-glasses--sides::before {
+    right: 30px;
+    border-left: solid 2px var(--color);
+}
+
+.cool-glasses--sides::after {
+    left: 30px;
+    border-right: solid 2px var(--color);
 }
