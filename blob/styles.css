@@ -171,3 +171,16 @@ body {
     transform-origin: left;
     rotate: -8deg;
 }
+
+.pellet {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: hsl(var(--hue), 100%, 50%);
+    border-radius: 50%;
+    border-left: solid 3px #0007;
+    border-right: solid 2px #fff7;
+    box-sizing: border-box;
+    transform: translate(-50%, -250%) translate(var(--pos-x), var(--pos-y))
+        scaleY(75%) rotate(-30deg);
+}

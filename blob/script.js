@@ -27,6 +27,11 @@
  */
 
 /**
+ * @typedef {Object} ConsumePellet
+ * @prop {string} id
+ */
+
+/**
  * @typedef {Object} SetTargetReq
  * @prop {SetTarget} SetTarget
  */
@@ -42,7 +47,12 @@
  */
 
 /**
- * @typedef {SetTargetReq | ChangeAppearanceReq} ClientRequest
+ * @typedef {Object} ConsumePelletReq
+ * @prop {ConsumePellet} ConsumePellet
+ */
+
+/**
+ * @typedef {SetTargetReq | ChangeAppearanceReq | ConsumePelletReq} ClientRequest
  */
 
 /**
@@ -62,9 +72,24 @@
  */
 
 /**
+ * @typedef {Object} SpawnPelletRes
+ * @prop {SpawnPellet} SpawnPellet
+ */
+
+/**
+ * @typedef {Object} SpawnPellet
+ * @prop {PelletState} state
+ */
+
+/**
+ * @typedef {Object} DespawnPelletRes
+ * @prop {Object} DespawnPellet
+ */
+
+/**
  * @typedef {Object} ClientResponse
  * @prop {number} id
- * @prop {ClientRequest | ClientLeftRes | ClientJoinedRes} msg
+ * @prop {ClientRequest | ClientLeftRes | ClientJoinedRes | SpawnPelletRes | DespawnPelletRes} msg
  */
 
 /**
@@ -79,9 +104,21 @@
  */
 
 /**
+ * @typedef {Object} PelletState
+ * @prop {number} x
+ * @prop {number} y
+ * @prop {number} hue
+ */
+
+/**
  * @type {Object.<string, ClientState>}
  */
 const states = {};
+
+/**
+ * @type {Object.<string, PelletState>}
+ */
+const pelletStates = {};
 
 let scale = 1.0;
 const viewportElem = document.getElementById("container");
@@ -140,9 +177,30 @@ function changeAppearance(id, state) {
   }
 }
 
+/**
+ * @param {string} id
+ * @param {PelletState} state
+ */
+function spawnPellet(id, state) {
+  const tmpl = document.getElementById("pellet");
+  const elemFrag = tmpl.content.cloneNode(true);
+  const charElem = elemFrag.querySelector(".pellet");
+  charElem.id = `pellet-${id}`;
+  viewportElem.appendChild(elemFrag);
+  pelletStates[id] = structuredClone(state);
+  charElem.style.setProperty("--hue", `${state.hue}deg`);
+  charElem.style.setProperty("--pos-x", `${state.x}px`);
+  charElem.style.setProperty("--pos-y", `${state.y}px`);
+}
+
 function despawnCharacter(id) {
   delete states[id];
   document.getElementById(`char-${id}`).remove();
+}
+
+function despawnPellet(id) {
+  delete pelletStates[id];
+  document.getElementById(`pellet-${id}`).remove();
 }
 
 function getCharElem(id) {
@@ -205,6 +263,23 @@ function updateOuter() {
         getCharElem(id).style.setProperty("--rotation", `${state.rot}deg`);
       }
       setPosition(id, state.x, state.y);
+
+      if (id === localId) {
+        for (const pelletId in pelletStates) {
+          const pelletState = pelletStates[pelletId];
+          const dx = pelletState.x - state.x;
+          const dy = pelletState.y - state.y;
+          const dl = Math.sqrt(dx * dx + dy * dy);
+          if (dl < 30) {
+            despawnPellet(pelletId);
+            sendMessage({
+              ConsumePellet: {
+                id: pelletId,
+              },
+            });
+          }
+        }
+      }
     }
 
     prevEt = et;
@@ -260,8 +335,20 @@ ws.onmessage = (ev) => {
     if (!state) return; // TODO
     state.rot = response.msg.SyncRot.rot;
     getCharElem(response.id).style.setProperty("--rotation", `${state.rot}deg`);
+  } else if ("SpawnPellet" in response.msg) {
+    spawnPellet(response.id, response.msg.SpawnPellet.state);
+  } else if ("DespawnPellet" in response.msg) {
+    if (response.id in pelletStates) {
+      despawnPellet(response.id);
+    }
   }
 };
+
+// spawnPellet("42543", {
+//   hue: 120,
+//   x: 100,
+//   y: 100,
+// });
 
 document.getElementById("btn-appearance").onclick = (ev) => {
   sendMessage({
