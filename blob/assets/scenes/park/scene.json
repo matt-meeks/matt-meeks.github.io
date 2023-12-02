@@ -1,0 +1,22 @@
+{
+  "background": "#5caf00",
+  "layers": [
+    {
+      "src": "bg.svg",
+      "z": 0
+    },
+    {
+      "src": "tree1.svg",
+      "z": 183
+    },
+    {
+      "src": "tree2.svg",
+      "z": 443
+    },
+    {
+      "src": "tree3.svg",
+      "z": 495
+    }
+  ],
+  "mask": "mask.svg"
+}

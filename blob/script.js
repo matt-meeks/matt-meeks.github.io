@@ -101,6 +101,8 @@
  * @prop {number} rot
  * @prop {number} body_hue
  * @prop {number} iris_hue
+ * @prop {number?} blink_handle
+ * @prop {number?} blink_loop_handle
  */
 
 /**
@@ -194,6 +196,10 @@ function spawnPellet(id, state) {
 }
 
 function despawnCharacter(id) {
+  if (states[id].blink_handle !== undefined)
+    clearTimeout(states[id].blink_handle);
+  if (states[id].blink_loop_handle !== undefined)
+    clearTimeout(states[id].blink_loop_handle);
   delete states[id];
   document.getElementById(`char-${id}`).remove();
 }
@@ -220,13 +226,19 @@ function closeEyes(id) {
 
 function blink(id) {
   closeEyes(id);
-  setTimeout(() => openEyes(id), 150);
+  if (states[id].blink_handle !== undefined)
+    clearTimeout(states[id].blink_handle);
+  states[id].blink_handle = setTimeout(() => openEyes(id), 150);
 }
 
 function blinkLoop(id) {
-  if (!(id in states)) return;
   blink(id);
-  setTimeout(() => blinkLoop(id), Math.random() * 10000);
+  if (states[id].blink_loop_handle !== undefined)
+    clearTimeout(states[id].blink_loop_handle);
+  states[id].blink_loop_handle = setTimeout(
+    () => blinkLoop(id),
+    Math.random() * 10_000,
+  );
 }
 
 function setPosition(id, x, y) {
@@ -243,48 +255,52 @@ function updateOuter() {
   requestAnimationFrame((et) => {
     const dt = et - prevEt;
 
-    for (const id in states) {
-      const state = states[id];
-      let dx = state.tx - state.x;
-      let dy = state.ty - state.y;
-
-      let dl = Math.sqrt(dx * dx + dy * dy);
-
-      if (dl <= speed * dt) {
-        if (localId === id && (state.x !== state.tx || state.y !== state.ty)) {
-          sendMessage({ SyncRot: { rot: state.rot } });
-        }
-        state.x = state.tx;
-        state.y = state.ty;
-      } else {
-        state.x += (dx / dl) * dt * speed;
-        state.y += (dy / dl) * dt * speed;
-        state.rot += dt * 0.3 * (dx / dl);
-        getCharElem(id).style.setProperty("--rotation", `${state.rot}deg`);
-      }
-      setPosition(id, state.x, state.y);
-
-      if (id === localId) {
-        for (const pelletId in pelletStates) {
-          const pelletState = pelletStates[pelletId];
-          const dx = pelletState.x - state.x;
-          const dy = pelletState.y - state.y;
-          const dl = Math.sqrt(dx * dx + dy * dy);
-          if (dl < 30) {
-            despawnPellet(pelletId);
-            sendMessage({
-              ConsumePellet: {
-                id: pelletId,
-              },
-            });
-          }
-        }
-      }
-    }
+    update(dt);
 
     prevEt = et;
     updateOuter();
   });
+}
+
+function update(dt) {
+  for (const id in states) {
+    const state = states[id];
+    let dx = state.tx - state.x;
+    let dy = state.ty - state.y;
+
+    let dl = Math.sqrt(dx * dx + dy * dy);
+
+    if (dl <= speed * dt) {
+      if (localId === id && (state.x !== state.tx || state.y !== state.ty)) {
+        sendMessage({ SyncRot: { rot: state.rot } });
+      }
+      state.x = state.tx;
+      state.y = state.ty;
+    } else {
+      state.x += (dx / dl) * dt * speed;
+      state.y += (dy / dl) * dt * speed;
+      state.rot += dt * 0.3 * (dx / dl);
+      getCharElem(id).style.setProperty("--rotation", `${state.rot}deg`);
+    }
+    setPosition(id, state.x, state.y);
+
+    if (id === localId) {
+      for (const pelletId in pelletStates) {
+        const pelletState = pelletStates[pelletId];
+        const dx = pelletState.x - state.x;
+        const dy = pelletState.y - state.y;
+        const dl = Math.sqrt(dx * dx + dy * dy);
+        if (dl < 30) {
+          despawnPellet(pelletId);
+          sendMessage({
+            ConsumePellet: {
+              id: pelletId,
+            },
+          });
+        }
+      }
+    }
+  }
 }
 
 updateOuter();
@@ -344,12 +360,6 @@ ws.onmessage = (ev) => {
   }
 };
 
-// spawnPellet("42543", {
-//   hue: 120,
-//   x: 100,
-//   y: 100,
-// });
-
 document.getElementById("btn-appearance").onclick = (ev) => {
   sendMessage({
     ChangeAppearance: {
@@ -363,3 +373,52 @@ document.getElementById("btn-appearance").onclick = (ev) => {
   });
   ev.stopPropagation();
 };
+
+async function spawnScene(id) {
+  const res = await fetch(`assets/scenes/${id}/scene.json`);
+  if (!res.ok) {
+    throw new Error(`Failed to load scene manifest: ${res.statusText}`);
+  }
+  const manifest = await res.json();
+  const sceneElem = document.getElementById("scene");
+  sceneElem.style.background = manifest.background;
+
+  for (const layer of manifest.layers) {
+    const imgElem = document.createElement("img");
+    imgElem.src = `assets/scenes/${id}/${layer.src}`;
+    imgElem.style.width = "100%";
+    imgElem.style.height = "100%";
+    imgElem.style.position = "absolute";
+    imgElem.style.zIndex = layer.z;
+    sceneElem.appendChild(imgElem);
+  }
+
+  {
+    const maskRes = await fetch(`assets/scenes/${id}/${manifest.mask}`, {
+      mode: "no-cors",
+    });
+    if (!maskRes.ok) {
+      console.warn("Failed to load scene mask");
+      return;
+    }
+    const svgText = await maskRes.text();
+    let svgElem = document.createElement("svg");
+    sceneElem.appendChild(svgElem);
+    svgElem.outerHTML = svgText;
+    svgElem = sceneElem.lastElementChild;
+    svgElem.style.width = "100%";
+    svgElem.style.height = "100%";
+    svgElem.style.position = "absolute";
+    svgElem.style.zIndex = 100000;
+    svgElem.style.opacity = 0;
+    svgElem.onclick = (ev) => {
+      if (ev.target.tagName !== "svg") {
+        console.log("Mask hit", ev.target);
+        ev.stopPropagation();
+      }
+    };
+    // TODO: stop from walking across mask somehow?
+  }
+}
+
+spawnScene("park");

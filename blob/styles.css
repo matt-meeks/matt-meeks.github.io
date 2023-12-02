@@ -3,12 +3,13 @@ html,
 body {
     width: 100%;
     height: 100%;
+    background: black;
 }
 
 .container {
     width: 1280px;
     height: 720px;
-    background: orange;
+    /* background: orange; */
     overflow: hidden;
     transform-origin: top left;
 }
@@ -183,4 +184,10 @@ body {
     box-sizing: border-box;
     transform: translate(-50%, -250%) translate(var(--pos-x), var(--pos-y))
         scaleY(75%) rotate(-30deg);
+}
+
+#scene {
+    width: 100%;
+    height: 100%;
+    position: absolute;
 }
