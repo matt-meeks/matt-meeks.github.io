@@ -158,7 +158,6 @@ function spawnCharacter(id, state) {
  * @param {ChangeAppearance} state
  */
 function changeAppearance(id, state) {
-  console.log(state);
   const charElem = getCharElem(id);
   const apparelElem = charElem.querySelector(".apparel");
   apparelElem.innerHTML = "";
@@ -244,7 +243,7 @@ function blinkLoop(id) {
 function setPosition(id, x, y) {
   const elem = getCharElem(id);
   elem.style.setProperty("--pos-x", `${x}px`);
-  elem.style.setProperty("--pos-y", `${y - 50}px`);
+  elem.style.setProperty("--pos-y", `${y - 30}px`);
   elem.style.zIndex = Math.round(y);
 }
 
@@ -390,6 +389,7 @@ async function spawnScene(id) {
     imgElem.style.height = "100%";
     imgElem.style.position = "absolute";
     imgElem.style.zIndex = layer.z;
+    imgElem.style.pointerEvents = "none";
     sceneElem.appendChild(imgElem);
   }
 
