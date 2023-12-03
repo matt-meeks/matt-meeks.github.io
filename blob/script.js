@@ -1,5 +1,7 @@
 /**
  * @typedef {Object} SetTarget
+ * @prop {number} temp_from_x
+ * @prop {number} temp_from_y
  * @prop {number} x
  * @prop {number} y
  */
@@ -82,6 +84,16 @@
  */
 
 /**
+ * @typedef {Object} SetPathRes
+ * @prop {SetPath} SetPath
+ */
+
+/**
+ * @typedef {Object} SetPath
+ * @prop {Path} path
+ */
+
+/**
  * @typedef {Object} DespawnPelletRes
  * @prop {Object} DespawnPellet
  */
@@ -89,15 +101,23 @@
 /**
  * @typedef {Object} ClientResponse
  * @prop {number} id
- * @prop {ClientRequest | ClientLeftRes | ClientJoinedRes | SpawnPelletRes | DespawnPelletRes} msg
+ * @prop {ClientRequest | ClientLeftRes | ClientJoinedRes | SpawnPelletRes | DespawnPelletRes | SetPathRes} msg
+ */
+
+/**
+ * @typedef {[number, number]} Position
+ */
+
+/**
+ * @typedef {Position[]} Path
  */
 
 /**
  * @typedef {Object} ClientState
  * @prop {number} x
  * @prop {number} y
- * @prop {number} tx
- * @prop {number} ty
+ * @prop {number} path_index
+ * @prop {Path?} path
  * @prop {number} rot
  * @prop {number} body_hue
  * @prop {number} iris_hue
@@ -150,6 +170,7 @@ function spawnCharacter(id, state) {
   states[id] = structuredClone(state);
   blinkLoop(id);
   changeAppearance(id, state);
+  setPosition(id, state.x, state.y);
   charElem.style.setProperty("--rotation", `${state.rot}deg`);
 }
 
@@ -264,24 +285,34 @@ function updateOuter() {
 function update(dt) {
   for (const id in states) {
     const state = states[id];
-    let dx = state.tx - state.x;
-    let dy = state.ty - state.y;
 
-    let dl = Math.sqrt(dx * dx + dy * dy);
+    if (state.path) {
+      const tx = state.path[state.path_index][0];
+      const ty = state.path[state.path_index][1];
+      let dx = tx - state.x;
+      let dy = ty - state.y;
 
-    if (dl <= speed * dt) {
-      if (localId === id && (state.x !== state.tx || state.y !== state.ty)) {
-        sendMessage({ SyncRot: { rot: state.rot } });
+      let dl = Math.sqrt(dx * dx + dy * dy);
+
+      if (dl <= speed * dt) {
+        if (localId === id && (state.x !== tx || state.y !== ty)) {
+          sendMessage({ SyncRot: { rot: state.rot } });
+        }
+        state.x = tx;
+        state.y = ty;
+        state.path_index++;
+        if (state.path_index >= state.path.length) {
+          delete state.path;
+          delete state.path_index;
+        }
+      } else {
+        state.x += (dx / dl) * dt * speed;
+        state.y += (dy / dl) * dt * speed;
+        state.rot += dt * 0.3 * (dx / dl);
+        getCharElem(id).style.setProperty("--rotation", `${state.rot}deg`);
       }
-      state.x = state.tx;
-      state.y = state.ty;
-    } else {
-      state.x += (dx / dl) * dt * speed;
-      state.y += (dy / dl) * dt * speed;
-      state.rot += dt * 0.3 * (dx / dl);
-      getCharElem(id).style.setProperty("--rotation", `${state.rot}deg`);
+      setPosition(id, state.x, state.y);
     }
-    setPosition(id, state.x, state.y);
 
     if (id === localId) {
       for (const pelletId in pelletStates) {
@@ -316,11 +347,13 @@ viewportElem.onclick = (ev) => {
     SetTarget: {
       x: Math.round(ev.x / scale),
       y: Math.round(ev.y / scale),
+      temp_from_x: Math.round(states[localId].x),
+      temp_from_y: Math.round(states[localId].y),
     },
   });
 };
 
-const ws = new WebSocket("wss://abc.matthewmeeks.xyz:8088/ws");
+const ws = new WebSocket("wss://localhost:8088/ws");
 ws.onmessage = (ev) => {
   /**
    * @type {ClientResponse}
@@ -336,11 +369,11 @@ ws.onmessage = (ev) => {
     if (response.msg.ClientJoined.is_local) {
       localId = response.id;
     }
-  } else if ("SetTarget" in response.msg) {
+  } else if ("SetPath" in response.msg) {
     const state = states[response.id];
     if (!state) return; // TODO
-    state.tx = response.msg.SetTarget.x;
-    state.ty = response.msg.SetTarget.y;
+    state.path = response.msg.SetPath.path;
+    state.path_index = 0;
   } else if ("ClientLeft" in response.msg) {
     despawnCharacter(response.id);
   } else if ("ChangeAppearance" in response.msg) {
@@ -380,6 +413,7 @@ async function spawnScene(id) {
   }
   const manifest = await res.json();
   const sceneElem = document.getElementById("scene");
+  sceneElem.innerHTML = "";
   sceneElem.style.background = manifest.background;
 
   for (const layer of manifest.layers) {
@@ -393,32 +427,66 @@ async function spawnScene(id) {
     sceneElem.appendChild(imgElem);
   }
 
-  {
-    const maskRes = await fetch(`assets/scenes/${id}/${manifest.mask}`, {
-      mode: "no-cors",
-    });
-    if (!maskRes.ok) {
-      console.warn("Failed to load scene mask");
-      return;
-    }
-    const svgText = await maskRes.text();
-    let svgElem = document.createElement("svg");
-    sceneElem.appendChild(svgElem);
-    svgElem.outerHTML = svgText;
-    svgElem = sceneElem.lastElementChild;
-    svgElem.style.width = "100%";
-    svgElem.style.height = "100%";
-    svgElem.style.position = "absolute";
-    svgElem.style.zIndex = 100000;
-    svgElem.style.opacity = 0;
-    svgElem.onclick = (ev) => {
-      if (ev.target.tagName !== "svg") {
-        console.log("Mask hit", ev.target);
-        ev.stopPropagation();
-      }
-    };
-    // TODO: stop from walking across mask somehow?
-  }
+  // {
+  //   const maskRes = await fetch(`assets/scenes/${id}/${manifest.mask}`, {
+  //     mode: "no-cors",
+  //   });
+  //   if (!maskRes.ok) {
+  //     console.warn("Failed to load scene mask");
+  //     return;
+  //   }
+  //   const svgText = await maskRes.text();
+  //   let svgElem = document.createElement("svg");
+  //   sceneElem.appendChild(svgElem);
+  //   svgElem.outerHTML = svgText;
+  //   svgElem = sceneElem.lastElementChild;
+  //   svgElem.style.width = "100%";
+  //   svgElem.style.height = "100%";
+  //   svgElem.style.position = "absolute";
+  //   svgElem.style.zIndex = 100000;
+  //   svgElem.style.opacity = 0;
+  //   svgElem.onclick = (ev) => {
+  //     if (ev.target.tagName !== "svg") {
+  //       console.log("Mask hit", ev.target);
+  //       ev.stopPropagation();
+  //     }
+  //   };
+  //   // TODO: stop from walking across mask somehow?
+  // }
 }
+
+// /**
+//  * @param {Path} path
+//  * @param {number} t
+//  * @returns {Position}
+//  */
+// function samplePath(path, t) {
+//   let ct = 0;
+
+//   for (let i = 0; i < path.length - 1; i++) {
+//     const dx = path[i][0] - path[i + 1][0];
+//     const dy = path[i][1] - path[i + 1][1];
+//     const dl = Math.sqrt(dx * dx + dy * dy);
+
+//     const nt = ct + dl;
+//     if (nt >= t) {
+//       return lerp(path[i], path[i + 1], (t - ct) / dl);
+//     }
+
+//     ct += dl;
+//   }
+
+//   return path[path.length - 1];
+// }
+
+// /**
+//  * @param {Position} a
+//  * @param {Position} b
+//  * @param {number} t
+//  * @returns {Position}
+//  */
+// function lerp(a, b, t) {
+//   return [a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])];
+// }
 
 spawnScene("park");
