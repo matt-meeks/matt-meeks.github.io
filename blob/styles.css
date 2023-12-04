@@ -193,7 +193,8 @@ body {
     position: absolute;
 }
 
-#btn-appearance {
+#btn-appearance,
+#btn-fullscreen {
     position: absolute;
     bottom: 0;
     z-index: 100001;
@@ -204,4 +205,8 @@ body {
     padding: 0.5rem;
     border-radius: 0.5rem;
     margin: 1rem;
+}
+
+#btn-fullscreen {
+    right: 0;
 }

@@ -406,6 +406,15 @@ document.getElementById("btn-appearance").onclick = (ev) => {
   ev.stopPropagation();
 };
 
+document.getElementById("btn-fullscreen").onclick = (ev) => {
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  } else {
+    document.body.requestFullscreen();
+  }
+  ev.stopPropagation();
+};
+
 async function spawnScene(id) {
   const res = await fetch(`assets/scenes/${id}/scene.json`);
   if (!res.ok) {
