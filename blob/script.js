@@ -353,7 +353,7 @@ viewportElem.onclick = (ev) => {
   });
 };
 
-const ws = new WebSocket("wss://localhost:8088/ws");
+const ws = new WebSocket("wss://abc.matthewmeeks.xyz:8088/ws");
 ws.onmessage = (ev) => {
   /**
    * @type {ClientResponse}
