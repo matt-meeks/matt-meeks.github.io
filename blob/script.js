@@ -148,11 +148,14 @@ const viewportElem = document.getElementById("container");
 function setScale(v) {
   scale = v;
   viewportElem.style.scale = v;
+  viewportElem.style.left = `${Math.round(
+    Math.max(0, visualViewport.width - v * 1280) / 2,
+  )}px`;
 }
 
 visualViewport.onresize = () => {
-  const sx = document.body.clientWidth / 1280;
-  const sy = document.body.clientHeight / 720;
+  const sx = visualViewport.width / 1280;
+  const sy = visualViewport.height / 720;
   setScale(Math.min(sx, sy));
 };
 visualViewport.onresize();
@@ -408,9 +411,11 @@ document.getElementById("btn-appearance").onclick = (ev) => {
 
 document.getElementById("btn-fullscreen").onclick = (ev) => {
   if (document.fullscreenElement) {
-    document.exitFullscreen();
+    document.exitFullscreen().then(() => screen.orientation.unlock());
   } else {
-    document.body.requestFullscreen();
+    document.body
+      .requestFullscreen()
+      .then(() => screen.orientation.lock("landscape"));
   }
   ev.stopPropagation();
 };
@@ -435,67 +440,6 @@ async function spawnScene(id) {
     imgElem.style.pointerEvents = "none";
     sceneElem.appendChild(imgElem);
   }
-
-  // {
-  //   const maskRes = await fetch(`assets/scenes/${id}/${manifest.mask}`, {
-  //     mode: "no-cors",
-  //   });
-  //   if (!maskRes.ok) {
-  //     console.warn("Failed to load scene mask");
-  //     return;
-  //   }
-  //   const svgText = await maskRes.text();
-  //   let svgElem = document.createElement("svg");
-  //   sceneElem.appendChild(svgElem);
-  //   svgElem.outerHTML = svgText;
-  //   svgElem = sceneElem.lastElementChild;
-  //   svgElem.style.width = "100%";
-  //   svgElem.style.height = "100%";
-  //   svgElem.style.position = "absolute";
-  //   svgElem.style.zIndex = 100000;
-  //   svgElem.style.opacity = 0;
-  //   svgElem.onclick = (ev) => {
-  //     if (ev.target.tagName !== "svg") {
-  //       console.log("Mask hit", ev.target);
-  //       ev.stopPropagation();
-  //     }
-  //   };
-  //   // TODO: stop from walking across mask somehow?
-  // }
 }
-
-// /**
-//  * @param {Path} path
-//  * @param {number} t
-//  * @returns {Position}
-//  */
-// function samplePath(path, t) {
-//   let ct = 0;
-
-//   for (let i = 0; i < path.length - 1; i++) {
-//     const dx = path[i][0] - path[i + 1][0];
-//     const dy = path[i][1] - path[i + 1][1];
-//     const dl = Math.sqrt(dx * dx + dy * dy);
-
-//     const nt = ct + dl;
-//     if (nt >= t) {
-//       return lerp(path[i], path[i + 1], (t - ct) / dl);
-//     }
-
-//     ct += dl;
-//   }
-
-//   return path[path.length - 1];
-// }
-
-// /**
-//  * @param {Position} a
-//  * @param {Position} b
-//  * @param {number} t
-//  * @returns {Position}
-//  */
-// function lerp(a, b, t) {
-//   return [a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])];
-// }
 
 spawnScene("park");
