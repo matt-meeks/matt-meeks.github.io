@@ -143,14 +143,14 @@ const states = {};
 const pelletStates = {};
 
 let scale = 1.0;
+let offsetX = 0.0;
 const viewportElem = document.getElementById("container");
 
 function setScale(v) {
   scale = v;
   viewportElem.style.scale = v;
-  viewportElem.style.left = `${Math.round(
-    Math.max(0, visualViewport.width - v * 1280) / 2,
-  )}px`;
+  offsetX = Math.round(Math.max(0, visualViewport.width - v * 1280) / 2);
+  viewportElem.style.left = `${offsetX}px`;
 }
 
 visualViewport.onresize = () => {
@@ -348,7 +348,7 @@ function sendMessage(msg) {
 viewportElem.onclick = (ev) => {
   sendMessage({
     SetTarget: {
-      x: Math.round(ev.x / scale),
+      x: Math.round((ev.x - offsetX) / scale),
       y: Math.round(ev.y / scale),
       temp_from_x: Math.round(states[localId].x),
       temp_from_y: Math.round(states[localId].y),
