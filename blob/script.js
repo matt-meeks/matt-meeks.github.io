@@ -311,7 +311,8 @@ function update(dt) {
       } else {
         state.x += (dx / dl) * dt * speed;
         state.y += (dy / dl) * dt * speed;
-        state.rot += dt * 0.3 * (dx / dl);
+        state.rot += dt * 0.2 * (Math.sign(dx) || 1);
+        state.rot += dt * 0.1 * (dx / dl);
         getCharElem(id).style.setProperty("--rotation", `${state.rot}deg`);
       }
       setPosition(id, state.x, state.y);
