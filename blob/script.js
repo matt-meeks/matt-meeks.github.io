@@ -1,7 +1,5 @@
 /**
  * @typedef {Object} SetTarget
- * @prop {number} temp_from_x
- * @prop {number} temp_from_y
  * @prop {number} x
  * @prop {number} y
  */
@@ -117,6 +115,7 @@
  * @prop {number} x
  * @prop {number} y
  * @prop {number} path_index
+ * @prop {number} path_start_time_ms
  * @prop {Path?} path
  * @prop {number} rot
  * @prop {number} body_hue
@@ -285,6 +284,40 @@ function updateOuter() {
   });
 }
 
+/**
+ * @param {Position} a
+ * @param {Position} b
+ * @param {number} t
+ * @returns {Position}
+ */
+function lerp(a, b, t) {
+  return [a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])];
+}
+
+/**
+ * @param {Path} path
+ * @param {number} t
+ * @returns {Position}
+ */
+function samplePath(path, t) {
+  let ct = 0;
+
+  for (let i = 0; i < path.length - 1; i++) {
+    const dx = path[i][0] - path[i + 1][0];
+    const dy = path[i][1] - path[i + 1][1];
+    const dl = Math.sqrt(dx * dx + dy * dy);
+
+    const nt = ct + dl;
+    if (nt >= t) {
+      return [lerp(path[i], path[i + 1], (t - ct) / dl), i + 1];
+    }
+
+    ct += dl;
+  }
+
+  return [path[path.length - 1], path.length - 1];
+}
+
 function update(dt) {
   for (const id in states) {
     const state = states[id];
@@ -351,13 +384,15 @@ viewportElem.onclick = (ev) => {
     SetTarget: {
       x: Math.round((ev.x - offsetX) / scale),
       y: Math.round(ev.y / scale),
-      temp_from_x: Math.round(states[localId].x),
-      temp_from_y: Math.round(states[localId].y),
     },
   });
 };
 
-const ws = new WebSocket("wss://abc.matthewmeeks.xyz:8088/ws");
+const DEBUG = window.location.hostname === "localhost";
+
+const ws = new WebSocket(
+  DEBUG ? "wss://localhost:8088/ws" : "wss://abc.matthewmeeks.xyz:8088/ws",
+);
 ws.onmessage = (ev) => {
   /**
    * @type {ClientResponse}
@@ -365,10 +400,15 @@ ws.onmessage = (ev) => {
   const response = JSON.parse(ev.data);
 
   if ("ClientJoined" in response.msg) {
+    const [sampled, ind] = samplePath(
+      response.msg.ClientJoined.state.path,
+      (Date.now() - response.msg.ClientJoined.state.path_start_time_ms) * speed,
+    );
     spawnCharacter(response.id, {
       ...response.msg.ClientJoined.state,
-      tx: response.msg.ClientJoined.state.x,
-      ty: response.msg.ClientJoined.state.y,
+      path_index: ind,
+      x: sampled[0],
+      y: sampled[1],
     });
     if (response.msg.ClientJoined.is_local) {
       localId = response.id;
@@ -378,6 +418,26 @@ ws.onmessage = (ev) => {
     if (!state) return; // TODO
     state.path = response.msg.SetPath.path;
     state.path_index = 0;
+
+    if (DEBUG) {
+      const dbgElem = document.getElementById("debug");
+      dbgElem.innerHTML = "";
+      console.log("A");
+      for (let i = 0; i < state.path.length - 1; i++) {
+        const lineElem = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "line",
+        );
+        lineElem.setAttribute("x1", state.path[i][0]);
+        lineElem.setAttribute("y1", state.path[i][1]);
+        lineElem.setAttribute("x2", state.path[i + 1][0]);
+        lineElem.setAttribute("y2", state.path[i + 1][1]);
+        lineElem.setAttribute("stroke", "hotpink");
+        lineElem.setAttribute("stroke-width", 5);
+        dbgElem.appendChild(lineElem);
+        console.log(lineElem);
+      }
+    }
   } else if ("ClientLeft" in response.msg) {
     despawnCharacter(response.id);
   } else if ("ChangeAppearance" in response.msg) {
