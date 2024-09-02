@@ -224,4 +224,5 @@ button:active {
     height: 100%;
     position: absolute;
     z-index: 100000000;
+    pointer-events: none;
 }
